@@ -176,13 +176,46 @@ resource "aws_key_pair" "this" {
 locals {
   ec2_user_data = <<-EOF
     #!/bin/bash
-    yum update -y
-    amazon-linux-extras install docker -y
+    set -xe
+
+    # Update system
+    dnf update -y
+
+    # Install Docker
+    dnf install -y docker unzip
     systemctl start docker
     systemctl enable docker
-    usermod -aG docker ec2-user
+
+    # Install AWS CLI v2
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    unzip -o awscliv2.zip
+    ./aws/install
+
+    # Login to ECR
+    aws ecr get-login-password --region ${var.aws_region} \
+      | docker login --username AWS --password-stdin ${aws_ecr_repository.strapi.repository_url}
+
+    # Pull Strapi image
+    docker pull ${aws_ecr_repository.strapi.repository_url}:latest
+
+    # Run Strapi container
+    docker run -d \
+      --restart unless-stopped \
+      --name strapi \
+      -e HOST=0.0.0.0 \
+      -e PORT=1337 \
+      -e NODE_ENV=production \
+      -e APP_KEYS=${var.app_keys} \
+      -e ADMIN_JWT_SECRET=${var.admin_jwt_secret} \
+      -e JWT_SECRET=${var.jwt_secret} \
+      -e API_TOKEN_SALT=${var.api_token_salt} \
+      -e STRAPI_DISABLE_ADMIN_REBUILD=true \
+      -p 1337:1337 \
+      ${aws_ecr_repository.strapi.repository_url}:latest
   EOF
 }
+
+
 
 resource "aws_instance" "strapi" {
   ami                         = "ami-0532be01f26a3de55" # Amazon Linux 2 (ap-south-1)
@@ -190,7 +223,7 @@ resource "aws_instance" "strapi" {
   subnet_id                   = aws_subnet.private[0].id
   vpc_security_group_ids      = [aws_security_group.ec2.id]
   key_name                    = aws_key_pair.this.key_name
-  associate_public_ip_address = false
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
   user_data                   = local.ec2_user_data
 
   tags = {
@@ -286,4 +319,34 @@ resource "aws_ecr_lifecycle_policy" "strapi" {
   ]
 }
 EOF
+}
+
+resource "aws_iam_role" "ec2_role" {
+  name = "strapi-ec2-role-${var.environment}"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecr_read" {
+  role       = aws_iam_role.ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "strapi-ec2-profile-${var.environment}"
+  role = aws_iam_role.ec2_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_core" {
+  role       = aws_iam_role.ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }

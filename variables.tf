@@ -42,3 +42,27 @@ variable "ecr_repo_name" {
   description = "ECR repository name"
   type        = string
 }
+
+variable "app_keys" {
+  description = "Strapi app keys"
+  type        = string
+  sensitive   = true
+}
+
+variable "admin_jwt_secret" {
+  description = "Strapi admin JWT secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "jwt_secret" {
+  description = "Strapi JWT secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "api_token_salt" {
+  description = "Strapi API token salt"
+  type        = string
+  sensitive   = true
+}

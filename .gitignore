@@ -1,0 +1,19 @@
+# Terraform files
+.terraform/
+*.tfstate
+*.tfstate.*
+.crash.log
+terraform.tfvars.backup
+
+# SSH private keys (VERY IMPORTANT)
+strapi_key
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Node / Docker cache (optional safety)
+node_modules/

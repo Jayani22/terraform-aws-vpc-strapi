@@ -1,0 +1,7 @@
+aws_region  = "us-east-1"
+env         = "dev"
+az          = "us-east-1a"
+az_2        = "us-east-1b"
+public_key_path = "./strapi_key.pub"
+instance_type = "t3.micro"
+ami_id = "ami-0532be01f26a3de55"

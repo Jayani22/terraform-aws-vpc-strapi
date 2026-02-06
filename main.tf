@@ -205,7 +205,7 @@ resource "aws_lb_target_group" "strapi_tg" {
     vpc_id = aws_vpc.main.id
 
     health_check {
-        path = "/"
+        path = "/admin"
         protocol = "HTTP"
         port = "1337"
         healthy_threshold = 2

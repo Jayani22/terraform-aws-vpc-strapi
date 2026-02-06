@@ -1,5 +1,13 @@
+# Terraform
 .terraform/
 *.tfstate
 *.tfstate.*
-.crash.log
 .terraform.lock.hcl
+.crash.log
+
+# SSH keys (just in case)
+*.pem
+*.key
+
+# OS
+.DS_Store

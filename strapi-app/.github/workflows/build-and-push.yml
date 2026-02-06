@@ -10,34 +10,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Get the source code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2️⃣ Configure AWS credentials (from GitHub Secrets)
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      # 3️⃣ Login to Amazon ECR
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      # 4️⃣ Build Docker image (this is where Strapi needs RAM)
       - name: Build Docker image
         run: |
-          docker build -t strapi .
+          docker build -t ${{ secrets.ECR_REPOSITORY }} .
 
-      # 5️⃣ Tag image for ECR
       - name: Tag Docker image
         run: |
-          docker tag strapi:latest \
-          ${{ secrets.ECR_REPOSITORY }}:latest
+          docker tag ${{ secrets.ECR_REPOSITORY }}:latest \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
 
-      # 6️⃣ Push image to ECR
-      - name: Push Docker image
+      - name: Push Docker image to ECR
         run: |
-          docker push ${{ secrets.ECR_REPOSITORY }}:latest
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest

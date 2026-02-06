@@ -1,27 +1,44 @@
-variable "region" {
-  default = "us-east-1"
+variable "aws_region" {
+  description = "AWS region"
+  type        = string
+}
+
+variable "environment" {
+  description = "Environment name (dev, test, prod)"
+  type        = string
 }
 
 variable "vpc_cidr" {
-  default = "10.0.0.0/16"
+  description = "CIDR block for VPC"
+  type        = string
 }
 
-variable "public_subnet_cidr" {
-  default = "10.0.1.0/24"
+variable "public_subnet_cidrs" {
+  description = "CIDR blocks for public subnets"
+  type        = list(string)
 }
 
-variable "private_subnet_cidr" {
-  default = "10.0.2.0/24"
+variable "private_subnet_cidrs" {
+  description = "CIDR blocks for private subnets"
+  type        = list(string)
+}
+
+variable "allowed_ssh_cidr" {
+  description = "CIDR allowed for SSH access"
+  type        = string
 }
 
 variable "instance_type" {
-  default = "t3.micro"
+  description = "EC2 instance type"
+  type        = string
 }
 
-variable "key_name" {
-  description = "Existing EC2 key pair"
+variable "key_pair_name" {
+  description = "Key pair name"
+  type        = string
 }
 
-variable "docker_image" {
-  description = "Docker image URI (ECR or DockerHub)"
+variable "ecr_repo_name" {
+  description = "ECR repository name"
+  type        = string
 }

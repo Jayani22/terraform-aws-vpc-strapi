@@ -25,6 +25,7 @@ jobs:
 
       - name: Build Docker image
         run: |
+          cd strapi-app
           docker build -t ${{ secrets.ECR_REPOSITORY }} .
 
       - name: Tag Docker image

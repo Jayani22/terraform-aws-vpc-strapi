@@ -1,27 +1,27 @@
-variable "aws_region" {
-  description = "AWS region where resources will be created"
+variable "region" {
+  default = "us-east-1"
 }
 
-variable "env" {
-  description = "Environment name like dev or test"
+variable "vpc_cidr" {
+  default = "10.0.0.0/16"
 }
 
-variable "az" {
-  description = "Availability Zone"
+variable "public_subnet_cidr" {
+  default = "10.0.1.0/24"
 }
 
-variable "az_2" {
-  description = "Availability Zone 2"
-}
-
-variable "public_key_path" {
-    description = "Path to SSH public key"
+variable "private_subnet_cidr" {
+  default = "10.0.2.0/24"
 }
 
 variable "instance_type" {
-    description = "Instance-Type"
+  default = "t3.micro"
 }
 
-variable "ami_id" {
-    description = "AMI"
+variable "key_name" {
+  description = "Existing EC2 key pair"
+}
+
+variable "docker_image" {
+  description = "Docker image URI (ECR or DockerHub)"
 }
